@@ -12,9 +12,10 @@ import { BerkasQC } from './berkas-qc'
 
 interface BerkasDetailProps {
   berkas: Berkas
+  riwayat?: any[]
 }
 
-export function BerkasDetail({ berkas }: BerkasDetailProps) {
+export function BerkasDetail({ berkas, riwayat = [] }: BerkasDetailProps) {
   const router = useRouter()
   const { useCanAction } = require('@/lib/auth/hooks')
   const canEdit = useCanAction('edit') && berkas.statusBerkas !== 'SELESAI'
@@ -182,7 +183,7 @@ export function BerkasDetail({ berkas }: BerkasDetailProps) {
 
       {/* Sidebar */}
       <div className="lg:col-span-1">
-        <BerkasJourneyTimeline berkas={berkas} />
+        <BerkasJourneyTimeline berkas={berkas} riwayat={riwayat} />
       </div>
     </div>
   )

@@ -849,13 +849,13 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
         </div>
       </form>
 
-      <AddPetugasModal isOpen={showAddKoordinator} onClose={() => setShowAddKoordinator(false)} onSubmit={handleAddKoordinator} title="Tambah Koordinator Ukur Baru" existingNames={existingKoordinatorNames} requireNip={true} />
-      <AddPetugasModal isOpen={showAddPetugasUkur} onClose={() => setShowAddPetugasUkur(false)} onSubmit={handleAddPetugasUkur} title="Tambah Petugas Ukur Baru" existingNames={existingPetugasUkurNames} requireNip={false} />
-      <AddPetugasModal isOpen={showAddPetugasPemetaan} onClose={() => setShowAddPetugasPemetaan(false)} onSubmit={handleAddPetugasPemetaan} title="Tambah Petugas Pemetaan Baru" existingNames={existingPetugasPemetaanNames} requireNip={false} />
+      <AddPetugasModal isOpen={showAddKoordinator} onClose={() => setShowAddKoordinator(false)} onSubmit={(nama, nip) => handleAddKoordinator(nama, nip || '')} title="Tambah Koordinator Ukur Baru" existingNames={existingKoordinatorNames} requireNip={true} />
+      <AddPetugasModal isOpen={showAddPetugasUkur} onClose={() => setShowAddPetugasUkur(false)} onSubmit={(nama) => handleAddPetugasUkur(nama)} title="Tambah Petugas Ukur Baru" existingNames={existingPetugasUkurNames} requireNip={false} />
+      <AddPetugasModal isOpen={showAddPetugasPemetaan} onClose={() => setShowAddPetugasPemetaan(false)} onSubmit={(nama) => handleAddPetugasPemetaan(nama)} title="Tambah Petugas Pemetaan Baru" existingNames={existingPetugasPemetaanNames} requireNip={false} />
 
-      <ManagePetugasModal isOpen={showManageKoordinator} onClose={() => setShowManageKoordinator(false)} title="Kelola Koordinator Ukur" subtitle="Hapus koordinator ukur dari daftar" items={koordinatorUkurList} onDelete={handleDeleteKoordinator} />
-      <ManagePetugasModal isOpen={showManagePetugasUkur} onClose={() => setShowManagePetugasUkur(false)} title="Kelola Petugas Ukur" subtitle="Hapus petugas ukur dari daftar" items={petugasUkurList} onDelete={handleDeletePetugasUkur} />
-      <ManagePetugasModal isOpen={showManagePetugasPemetaan} onClose={() => setShowManagePetugasPemetaan(false)} title="Kelola Petugas Pemetaan" subtitle="Hapus petugas pemetaan dari daftar" items={petugasPemetaanList} onDelete={handleDeletePetugasPemetaan} />
+      <ManagePetugasModal isOpen={showManageKoordinator} onClose={() => setShowManageKoordinator(false)} title="Kelola Koordinator Ukur" subtitle="Hapus koordinator ukur dari daftar" items={koordinatorUkurList} onDelete={(nama) => handleDeleteKoordinator(koordinatorUkurList.findIndex(k => k.nama === nama))} />
+      <ManagePetugasModal isOpen={showManagePetugasUkur} onClose={() => setShowManagePetugasUkur(false)} title="Kelola Petugas Ukur" subtitle="Hapus petugas ukur dari daftar" items={petugasUkurList} onDelete={(nama) => handleDeletePetugasUkur(petugasUkurList.findIndex(p => p.nama === nama))} />
+      <ManagePetugasModal isOpen={showManagePetugasPemetaan} onClose={() => setShowManagePetugasPemetaan(false)} title="Kelola Petugas Pemetaan" subtitle="Hapus petugas pemetaan dari daftar" items={petugasPemetaanList} onDelete={(nama) => handleDeletePetugasPemetaan(petugasPemetaanList.findIndex(p => p.nama === nama))} />
     </div>
   )
 }

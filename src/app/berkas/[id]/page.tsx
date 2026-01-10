@@ -15,13 +15,21 @@ async function getBerkasById(id: string) {
   return berkas
 }
 
+async function getRiwayatByBerkasId(berkasId: string) {
+  return await prisma.riwayatBerkas.findMany({
+    where: { berkasId },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
 export default async function BerkasDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const berkas = await getBerkasById(id)
+  const riwayat = await getRiwayatByBerkasId(id)
 
   return (
     <AppLayout>
-      <BerkasDetail berkas={berkas} />
+      <BerkasDetail berkas={berkas} riwayat={riwayat} />
     </AppLayout>
   )
 }
