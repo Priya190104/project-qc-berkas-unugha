@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { UserRole } from '@/lib/auth/roles'
 
+// Disable static generation untuk API route ini
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Secret untuk JWT signing (GANTI DI PRODUCTION!)
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production'
 
