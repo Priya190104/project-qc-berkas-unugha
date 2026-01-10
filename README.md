@@ -1,36 +1,200 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# Sistem QC Berkas
 
-## Getting Started
+Aplikasi tracking dan quality control berkas pertanahan untuk BPN Cilacap, dibangun dengan Next.js 14, TypeScript, PostgreSQL, TailwindCSS, dan Shadcn/ui.
 
-First, run the development server:
+## Tech Stack
 
-```bash
+- **Frontend**: Next.js 14 + React + TypeScript
+- **Styling**: TailwindCSS + Shadcn/ui
+- **Backend**: Next.js API Routes
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Form**: React Hook Form + Zod
+
+## Prerequisites
+
+- Node.js 18+ dan npm
+- PostgreSQL 12+
+- Git
+
+## Setup
+
+### 1. Setup Database
+
+Buat database PostgreSQL baru:
+\\\ash
+createdb qc_berkas_db
+\\\
+
+### 2. Environment Variables
+
+Salin \.env.local\ dan update DATABASE_URL Anda:
+\\\ash
+cp .env.example .env.local
+\\\
+
+Edit DATABASE_URL di .env.local:
+\\\
+DATABASE_URL="postgresql://user:password@localhost:5432/qc_berkas_db"
+\\\
+
+### 3. Install Dependencies
+
+\\\ash
+npm install
+\\\
+
+### 4. Setup Database Schema
+
+\\\ash
+npx prisma migrate dev --name init
+\\\
+
+### 5. Run Development Server
+
+\\\ash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\\\
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikasi akan berjalan di http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+\\\
+src/
+ app/                    # Next.js App Router
+    dashboard/         # Halaman dashboard
+    berkas/            # Halaman daftar berkas
+       create/        # Form tambah berkas baru
+    settings/          # Halaman pengaturan & user management
+    api/               # API routes
+    layout.tsx         # Root layout
+ components/            # React components
+    sidebar.tsx        # Sidebar navigasi
+    app-layout.tsx     # Layout wrapper
+    ui/                # Shadcn/ui components
+    dashboard/         # Dashboard components
+    berkas/            # Berkas components
+ lib/
+    db.ts              # Prisma client
+    constants.ts       # Konstanta dan utility functions
+    utils.ts           # Shadcn utility functions
+ styles/                # Global styles
+prisma/
+ schema.prisma          # Database schema
+ migrations/            # Database migrations
+\\\
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+-  Dashboard dengan statistik berkas
+-  Daftar berkas dengan filter dan search
+-  Form pembuatan berkas baru dengan validasi
+-  Multi-tahap status berkas (Data Berkas, Ukur, Pemetaan, KKS, KASI, Selesai)
+-  Manajemen user dan role (Admin, Quality Control, Petugas Ukur, Pemetaan, KKS, KASI)
+-  Tracking riwayat perjalanan berkas
+-  SLA configuration per jenis permohonan
+-  Export data ke Excel
+-  Responsive UI dengan TailwindCSS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Workflow
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Proses Pengelolaan Berkas
 
-## Deploy on Vercel
+1. **Data Berkas** - Input awal berkas dari loket
+2. **Data Ukur** - KKS membuat ST Pengukuran
+3. **Pemetaan** - Petugas ukur melakukan pengukuran dan integrasi pemetaan
+4. **KKS** - Koreksi dan approval dari KKS (revisi atau ACC)
+5. **KASI** - Approval final dari KASI (revisi atau ACC)
+6. **Selesai** - Berkas selesai dan siap diserahkan
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Endpoints (TODO)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- \GET /api/berkas\ - Daftar berkas
+- \POST /api/berkas\ - Buat berkas baru
+- \GET /api/berkas/:id\ - Detail berkas
+- \PUT /api/berkas/:id\ - Update berkas
+- \DELETE /api/berkas/:id\ - Hapus berkas
+- \GET /api/users\ - Daftar user
+- \POST /api/users\ - Buat user baru
+
+## Development
+
+### Generate Prisma Client
+
+\\\ash
+npx prisma generate
+\\\
+
+### View Database
+
+\\\ash
+npx prisma studio
+\\\
+
+### Format Code
+
+\\\ash
+npm run format
+\\\
+
+### Lint
+
+\\\ash
+npm run lint
+\\\
+
+## Production Deployment
+
+### 1. Build
+
+\\\ash
+npm run build
+\\\
+
+### 2. Start
+
+\\\ash
+npm start
+\\\
+
+### Recommended Hosting
+
+- Vercel (Next.js native)
+- Railway (Full-stack)
+- AWS (EC2 + RDS)
+- DigitalOcean (VPS)
+
+## Troubleshooting
+
+### Database Connection Error
+- Pastikan PostgreSQL running
+- Cek DATABASE_URL di .env.local
+- Run \
+px prisma migrate dev\
+
+### Port 3000 sudah digunakan
+\\\ash
+npm run dev -- -p 3001
+\\\
+
+### Prisma Client error
+\\\ash
+npx prisma generate
+npm install
+\\\
+
+## Contributing
+
+1. Create feature branch (\git checkout -b feature/AmazingFeature\)
+2. Commit changes (\git commit -m 'Add AmazingFeature'\)
+3. Push to branch (\git push origin feature/AmazingFeature\)
+4. Open Pull Request
+
+## License
+
+MIT
+
+## Contact
+
+BPN Cilacap - Sistem QC Berkas

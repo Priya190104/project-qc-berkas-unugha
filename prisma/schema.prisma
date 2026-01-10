@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  DATA_BERKAS
+  DATA_UKUR
+  DATA_PEMETAAN
+  QUALITY_CONTROL
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(ADMIN)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Berkas {
+  id                  String   @id @default(cuid())
+  noBerkas            String   @unique
+  di302               String?
+  tanggal302          DateTime?
+  namaPemohon         String
+  jenisPermohonan     String
+  statusTanah         String?
+  keadaanTanah        String?
+  kecamatan           String?
+  desa                String?
+  luas                String?
+  luas302             String?
+  luasSU              String?
+  no305               String?
+  nib                 String?
+  notaris             String?
+  biayaUkur           Float?
+  statusBerkas        String   @default("DATA_BERKAS")
+  tanggalBerkas       DateTime?
+  keterangan          String?
+  koordinatorUkur     String?
+  nip                 String?
+  suratTugasAn        String?
+  petugasUkur         String?
+  noGu                String?
+  noStpPersiapuanUkur String?
+  tanggalStpPersiapuan DateTime?
+  noStp               String?
+  tanggalStp          DateTime?
+  posisiBerkasUkur    String?
+  petugasPemetaan     String?
+  posisiBerkasMetaan  String?
+  keteranganPemetaan  String?
+  // QC Fields for KKS
+  qcKksStatus         String?   // "ACC" atau "REVISI"
+  qcKksKeterangan     String?
+  qcKksOleh           String?   // Nama user yang melakukan QC KKS
+  qcKksTanggal        DateTime?
+  // QC Fields for Kepala Seksi
+  qcKasiStatus        String?   // "ACC" atau "REVISI"
+  qcKasiKeterangan    String?
+  qcKasiOleh          String?   // Nama user yang melakukan QC KASI
+  qcKasiTanggal       DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("berkas")
+}
+
+model RiwayatBerkas {
+  id        String   @id @default(cuid())
+  berkasId  String
+  statusLama String
+  statusBaru String
+  diterima  String?
+  diteruskan String?
+  catatan   String?
+  qcType    String?   // "KKS" atau "KASI"
+  qcStatus  String?   // "ACC" atau "REVISI"
+  createdAt DateTime @default(now())
+
+  @@map("riwayat_berkas")
+}
+
+model Petugas {
+  id        String   @id @default(cuid())
+  nama      String   @unique
+  nip       String?  // Only for Koordinator Ukur
+  tipe      String   // "KOORDINATOR_UKUR", "PETUGAS_UKUR", "PETUGAS_PEMETAAN"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("petugas")
+}
