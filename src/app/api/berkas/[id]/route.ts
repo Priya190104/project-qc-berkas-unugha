@@ -319,9 +319,9 @@ export async function DELETE(
       message: 'Berkas berhasil dihapus',
     })
   } catch (error: any) {
-    console.error('Error deleting berkas:', error)
+    console.error('Error deleting berkas:', error.message || String(error))
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Gagal menghapus berkas. Silakan coba lagi.' },
       { status: 500 }
     )
   }

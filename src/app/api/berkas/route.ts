@@ -12,6 +12,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, UserRole, BerkasSection } from '@/lib/auth/roles'
+import { withRetry } from '@/lib/db-retry'
 
 // Field mapping untuk menentukan section mana field-field tersebut
 const SECTION_FIELDS: Record<BerkasSection, string[]> = {
@@ -121,18 +122,12 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    console.log('POST /api/berkas - Request body:', JSON.stringify(body, null, 2))
 
     // Validasi required fields
     const requiredFields = ['noBerkas', 'namaPemohon', 'jenisPermohonan']
     const missingFields = requiredFields.filter((field) => !body[field])
     
     if (missingFields.length > 0) {
-      console.log('Missing required fields:', missingFields)
-    }
-
-    if (missingFields.length > 0) {
-      console.log('Missing required fields:', missingFields)
       return NextResponse.json(
         { error: 'Missing required fields', missing: missingFields },
         { status: 400 }
@@ -151,7 +146,6 @@ export async function POST(request: NextRequest) {
       )
       
       if (unauthorizedFields.length > 0) {
-        console.log('Unauthorized fields submitted:', unauthorizedFields)
         return NextResponse.json(
           {
             error: 'Forbidden: Your role can only submit DATA_BERKAS section fields',
@@ -163,48 +157,49 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create berkas
-    console.log('Creating berkas with data...')
-    const berkas = await prisma.berkas.create({
-      data: {
-        noBerkas: body.noBerkas,
-        di302: body.di302 || null,
-        tanggal302: body.tanggal302 ? new Date(body.tanggal302) : null,
-        namaPemohon: body.namaPemohon,
-        jenisPermohonan: body.jenisPermohonan,
-        statusTanah: body.statusTanah || null,
-        keadaanTanah: body.keadaanTanah || null,
-        kecamatan: body.kecamatan || null,
-        desa: body.desa || null,
-        luas: body.luas || null,
-        luas302: body.luas302 || null,
-        luasSU: body.luasSU || null,
-        no305: body.no305 || null,
-        nib: body.nib || null,
-        notaris: body.notaris || null,
-        biayaUkur: body.biayaUkur ? parseFloat(body.biayaUkur) : null,
-        statusBerkas: 'DATA_BERKAS',
-        tanggalBerkas: body.tanggalBerkas ? new Date(body.tanggalBerkas) : new Date(),
-        keterangan: body.keterangan || null,
-        // Data ukur fields
-        koordinatorUkur: body.koordinatorUkur || null,
-        nip: body.nip || null,
-        suratTugasAn: body.suratTugasAn || null,
-        petugasUkur: body.petugasUkur || null,
-        noGu: body.noGu || null,
-        noStpPersiapuanUkur: body.noStpPersiapuanUkur || null,
-        tanggalStpPersiapuan: body.tanggalStpPersiapuan ? new Date(body.tanggalStpPersiapuan) : null,
-        noStp: body.noStp || null,
-        tanggalStp: body.tanggalStp ? new Date(body.tanggalStp) : null,
-        posisiBerkasUkur: body.posisiBerkasUkur || null,
-        // Data pemetaan fields
-        petugasPemetaan: body.petugasPemetaan || null,
-        posisiBerkasMetaan: body.posisiBerkasMetaan || null,
-        keteranganPemetaan: body.keteranganPemetaan || null,
-      },
-    })
-
-    console.log('Berkas created successfully:', berkas.id)
+    // Create berkas with retry logic for connection issues
+    const berkas = await withRetry(
+      () =>
+        prisma.berkas.create({
+          data: {
+            noBerkas: body.noBerkas,
+            di302: body.di302 || null,
+            tanggal302: body.tanggal302 ? new Date(body.tanggal302) : null,
+            namaPemohon: body.namaPemohon,
+            jenisPermohonan: body.jenisPermohonan,
+            statusTanah: body.statusTanah || null,
+            keadaanTanah: body.keadaanTanah || null,
+            kecamatan: body.kecamatan || null,
+            desa: body.desa || null,
+            luas: body.luas || null,
+            luas302: body.luas302 || null,
+            luasSU: body.luasSU || null,
+            no305: body.no305 || null,
+            nib: body.nib || null,
+            notaris: body.notaris || null,
+            biayaUkur: body.biayaUkur ? parseFloat(body.biayaUkur) : null,
+            statusBerkas: 'DATA_BERKAS',
+            tanggalBerkas: body.tanggalBerkas ? new Date(body.tanggalBerkas) : new Date(),
+            keterangan: body.keterangan || null,
+            // Data ukur fields
+            koordinatorUkur: body.koordinatorUkur || null,
+            nip: body.nip || null,
+            suratTugasAn: body.suratTugasAn || null,
+            petugasUkur: body.petugasUkur || null,
+            noGu: body.noGu || null,
+            noStpPersiapuanUkur: body.noStpPersiapuanUkur || null,
+            tanggalStpPersiapuan: body.tanggalStpPersiapuan ? new Date(body.tanggalStpPersiapuan) : null,
+            noStp: body.noStp || null,
+            tanggalStp: body.tanggalStp ? new Date(body.tanggalStp) : null,
+            posisiBerkasUkur: body.posisiBerkasUkur || null,
+            // Data pemetaan fields
+            petugasPemetaan: body.petugasPemetaan || null,
+            posisiBerkasMetaan: body.posisiBerkasMetaan || null,
+            keteranganPemetaan: body.keteranganPemetaan || null,
+          },
+        }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Log activity
     if (body.riwayat !== false) {
@@ -233,21 +228,28 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error: any) {
-    console.error('Error creating berkas - Full error:', error)
-    console.error('Error code:', error.code)
-    console.error('Error message:', error.message)
-    console.error('Error meta:', error.meta)
-
-    // Handle unique constraint error
+    // Handle unique constraint error (P2002)
     if (error.code === 'P2002') {
+      console.warn('Duplicate noBerkas: User tried to create berkas with existing nomor')
       return NextResponse.json(
-        { error: 'Nomor berkas sudah terdaftar', field: error.meta?.target },
+        { error: 'Nomor berkas sudah terdaftar. Gunakan nomor berkas yang berbeda.', field: error.meta?.target },
+        { status: 409 }
+      )
+    }
+
+    // Handle other Prisma errors
+    if (error.code?.startsWith('P')) {
+      console.warn(`Prisma error ${error.code}:`, error.message)
+      return NextResponse.json(
+        { error: 'Database error: ' + error.message },
         { status: 400 }
       )
     }
 
+    // Log other errors
+    console.error('Error creating berkas:', error.message || String(error))
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message || String(error) },
+      { error: 'Internal server error. Silakan coba lagi.' },
       { status: 500 }
     )
   }
