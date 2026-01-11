@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, UserRole, BerkasSection } from '@/lib/auth/roles'
@@ -120,12 +121,18 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
+    console.log('POST /api/berkas - Request body:', JSON.stringify(body, null, 2))
 
     // Validasi required fields
     const requiredFields = ['noBerkas', 'namaPemohon', 'jenisPermohonan']
     const missingFields = requiredFields.filter((field) => !body[field])
+    
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields)
+    }
 
     if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields)
       return NextResponse.json(
         { error: 'Missing required fields', missing: missingFields },
         { status: 400 }
@@ -144,6 +151,7 @@ export async function POST(request: NextRequest) {
       )
       
       if (unauthorizedFields.length > 0) {
+        console.log('Unauthorized fields submitted:', unauthorizedFields)
         return NextResponse.json(
           {
             error: 'Forbidden: Your role can only submit DATA_BERKAS section fields',
@@ -156,6 +164,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create berkas
+    console.log('Creating berkas with data...')
     const berkas = await prisma.berkas.create({
       data: {
         noBerkas: body.noBerkas,
@@ -195,6 +204,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    console.log('Berkas created successfully:', berkas.id)
+
     // Log activity
     if (body.riwayat !== false) {
       await prisma.riwayatBerkas.create({
@@ -206,7 +217,11 @@ export async function POST(request: NextRequest) {
           catatan: `Berkas dibuat oleh ${user.role}: ${user.name}`,
         },
       })
+      console.log('Riwayat created for berkas:', berkas.id)
     }
+
+    // Revalidate berkas list page to show new data
+    revalidatePath('/berkas')
 
     return NextResponse.json(
       {
