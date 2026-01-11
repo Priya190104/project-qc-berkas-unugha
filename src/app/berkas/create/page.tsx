@@ -350,74 +350,34 @@ function BerkasCreateContent() {
         return
       }
 
-      // Define allowed fields per role
-      const allowedFieldsByRole: Record<string, string[]> = {
-        ADMIN: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan', 'koordinatorUkur', 'nip', 'suratTugasAn', 'petugasUkur',
-          'noGu', 'noStpPersiapuanUkur', 'tanggalStpPersiapuan', 'noStp',
-          'tanggalStp', 'posisiBerkasUkur', 'petugasPemetaan', 'posisiBerkasMetaan',
-          'keteranganPemetaan'
-        ],
-        DATA_BERKAS: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan'
-        ],
-        DATA_UKUR: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan', 'koordinatorUkur', 'nip', 'suratTugasAn', 'petugasUkur',
-          'noGu', 'noStpPersiapuanUkur', 'tanggalStpPersiapuan', 'noStp',
-          'tanggalStp', 'posisiBerkasUkur'
-        ],
-        DATA_PEMETAAN: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan', 'petugasPemetaan', 'posisiBerkasMetaan', 'keteranganPemetaan'
-        ],
+      const payload = {
+        noBerkas: formData.noBerkas,
+        di302: formData.di302 || null,
+        tanggal302: formData.tanggal302 || null,
+        namaPemohon: formData.namaPemohon,
+        jenisPermohonan: formData.jenisPermohonan,
+        statusTanah: formData.statusTanah || null,
+        keadaanTanah: formData.keadaanTanah || null,
+        kecamatan: formData.kecamatan || null,
+        desa: formData.desa || null,
+        luas: formData.luas || null,
+        luas302: formData.luas302 || null,
+        luasSU: formData.luasSU || null,
+        no305: formData.no305 || null,
+        nib: formData.nib || null,
+        notaris: formData.notaris || null,
+        biayaUkur: formData.biayaUkur ? parseFloat(formData.biayaUkur) : null,
+        tanggalBerkas: formData.tanggalBerkas || new Date().toISOString(),
+        keterangan: formData.keterangan || null,
+        koordinatorUkur: formData.koordinatorUkur || null,
+        nip: formData.nip || null,
+        suratTugasAn: formData.suratTugasAn || null,
+        petugasUkur: formData.petugasUkur || null,
+        noGu: formData.noGu || null,
+        noStpPersiapuanUkur: formData.noStpPersiapuanUkur || null,
+        tanggalStpPersiapuan: formData.tanggalStpPersiapuan || null,
+        posisiBerkasUkur: formData.posisiBerkasUkur || null,
       }
-
-      // Build payload with only allowed fields
-      const allowedFields = allowedFieldsByRole[user?.role || 'DATA_BERKAS'] || allowedFieldsByRole.DATA_BERKAS
-      const payload: Record<string, any> = {}
-
-      if (allowedFields.includes('noBerkas')) payload.noBerkas = formData.noBerkas
-      if (allowedFields.includes('di302')) payload.di302 = formData.di302 || null
-      if (allowedFields.includes('tanggal302')) payload.tanggal302 = formData.tanggal302 || null
-      if (allowedFields.includes('namaPemohon')) payload.namaPemohon = formData.namaPemohon
-      if (allowedFields.includes('jenisPermohonan')) payload.jenisPermohonan = formData.jenisPermohonan
-      if (allowedFields.includes('statusTanah')) payload.statusTanah = formData.statusTanah || null
-      if (allowedFields.includes('keadaanTanah')) payload.keadaanTanah = formData.keadaanTanah || null
-      if (allowedFields.includes('kecamatan')) payload.kecamatan = formData.kecamatan || null
-      if (allowedFields.includes('desa')) payload.desa = formData.desa || null
-      if (allowedFields.includes('luas')) payload.luas = formData.luas || null
-      if (allowedFields.includes('luas302')) payload.luas302 = formData.luas302 || null
-      if (allowedFields.includes('luasSU')) payload.luasSU = formData.luasSU || null
-      if (allowedFields.includes('no305')) payload.no305 = formData.no305 || null
-      if (allowedFields.includes('nib')) payload.nib = formData.nib || null
-      if (allowedFields.includes('notaris')) payload.notaris = formData.notaris || null
-      if (allowedFields.includes('biayaUkur')) payload.biayaUkur = formData.biayaUkur ? parseFloat(formData.biayaUkur) : null
-      if (allowedFields.includes('tanggalBerkas')) payload.tanggalBerkas = formData.tanggalBerkas || new Date().toISOString()
-      if (allowedFields.includes('keterangan')) payload.keterangan = formData.keterangan || null
-      if (allowedFields.includes('koordinatorUkur')) payload.koordinatorUkur = formData.koordinatorUkur || null
-      if (allowedFields.includes('nip')) payload.nip = formData.nip || null
-      if (allowedFields.includes('suratTugasAn')) payload.suratTugasAn = formData.suratTugasAn || null
-      if (allowedFields.includes('petugasUkur')) payload.petugasUkur = formData.petugasUkur || null
-      if (allowedFields.includes('noGu')) payload.noGu = formData.noGu || null
-      if (allowedFields.includes('noStpPersiapuanUkur')) payload.noStpPersiapuanUkur = formData.noStpPersiapuanUkur || null
-      if (allowedFields.includes('tanggalStpPersiapuan')) payload.tanggalStpPersiapuan = formData.tanggalStpPersiapuan || null
-      if (allowedFields.includes('noStp')) payload.noStp = formData.noStp || null
-      if (allowedFields.includes('tanggalStp')) payload.tanggalStp = formData.tanggalStp || null
-      if (allowedFields.includes('posisiBerkasUkur')) payload.posisiBerkasUkur = formData.posisiBerkasUkur || null
-      if (allowedFields.includes('petugasPemetaan')) payload.petugasPemetaan = formData.petugasPemetaan || null
-      if (allowedFields.includes('posisiBerkasMetaan')) payload.posisiBerkasMetaan = formData.posisiBerkasMetaan || null
-      if (allowedFields.includes('keteranganPemetaan')) payload.keteranganPemetaan = formData.keteranganPemetaan || null
 
       console.log('Submitting berkas with payload:', payload)
 
@@ -594,6 +554,7 @@ function BerkasCreateContent() {
                 <div>
                   <label className="block text-sm font-medium text-slate-900 mb-1">Jenis Permohonan</label>
                   <select name="jenisPermohonan" value={formData.jenisPermohonan} onChange={handleInputChange} disabled={!canEditSection(user?.role, 'DATA_BERKAS')} className={`w-full px-3 py-2 border border-slate-300 rounded-lg ${!canEditSection(user?.role, 'DATA_BERKAS') ? 'bg-slate-100 cursor-not-allowed text-slate-500' : ''}`}>
+                    <option value="">Jenis Permohonan</option>
                     {JENIS_PERMOHONAN.map(jenis => (<option key={jenis} value={jenis}>{jenis}</option>))}
                   </select>
                 </div>
