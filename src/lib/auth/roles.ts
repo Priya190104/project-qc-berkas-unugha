@@ -29,8 +29,8 @@ export interface RolePermissions {
  * Berdasarkan requirement:
  * - ADMIN: Akses penuh semua section
  * - DATA_BERKAS: Hanya section DATA_BERKAS
- * - DATA_UKUR: Hanya section DATA_UKUR
- * - DATA_PEMETAAN: Hanya section DATA_PEMETAAN
+ * - DATA_UKUR: Section DATA_BERKAS + DATA_UKUR
+ * - DATA_PEMETAAN: Section DATA_BERKAS + DATA_PEMETAAN
  * - QUALITY_CONTROL: View dan move stage saja
  */
 export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
@@ -59,7 +59,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canDelete: false,
     canMoveStage: true,
     canPrint: true,
-    editableSections: ['DATA_UKUR'],
+    editableSections: ['DATA_BERKAS', 'DATA_UKUR'],
   },
   [UserRole.DATA_PEMETAAN]: {
     canView: true,
@@ -68,7 +68,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canDelete: false,
     canMoveStage: true,
     canPrint: true,
-    editableSections: ['DATA_PEMETAAN'],
+    editableSections: ['DATA_BERKAS', 'DATA_PEMETAAN'],
   },
   [UserRole.QUALITY_CONTROL]: {
     canView: true,
