@@ -1,6 +1,8 @@
 /**
  * Role-Based Access Control (RBAC) Configuration
  * Defines permissions for each user role in the system
+ * 
+ * UPDATED: DATA_UKUR and DATA_PEMETAAN can now edit DATA_BERKAS section
  */
 
 export enum UserRole {
