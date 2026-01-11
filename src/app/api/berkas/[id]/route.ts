@@ -186,8 +186,8 @@ export async function PUT(
     const allowedFieldsByRole: Record<string, string[]> = {
       ADMIN: Object.values(SECTION_FIELDS).flat(),
       DATA_BERKAS: SECTION_FIELDS.DATA_BERKAS,
-      DATA_UKUR: [...SECTION_FIELDS.DATA_BERKAS, ...SECTION_FIELDS.DATA_UKUR],
-      DATA_PEMETAAN: [...SECTION_FIELDS.DATA_BERKAS, ...SECTION_FIELDS.DATA_PEMETAAN],
+      DATA_UKUR: SECTION_FIELDS.DATA_UKUR,
+      DATA_PEMETAAN: SECTION_FIELDS.DATA_PEMETAAN,
     }
     
     const roleAllowedFields = allowedFieldsByRole[user.role] || SECTION_FIELDS.DATA_BERKAS

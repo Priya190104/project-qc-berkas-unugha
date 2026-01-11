@@ -278,7 +278,7 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
         return
       }
 
-      // Define allowed fields per role - same as create form
+      // Define allowed fields per role
       const allowedFieldsByRole: Record<string, string[]> = {
         ADMIN: [
           'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
@@ -296,18 +296,12 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
           'keterangan'
         ],
         DATA_UKUR: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan', 'koordinatorUkur', 'nip', 'suratTugasAn', 'petugasUkur',
+          'koordinatorUkur', 'nip', 'suratTugasAn', 'petugasUkur',
           'noGu', 'noStpPersiapuanUkur', 'tanggalStpPersiapuan', 'noStp',
           'tanggalStp', 'posisiBerkasUkur'
         ],
         DATA_PEMETAAN: [
-          'noBerkas', 'di302', 'tanggal302', 'namaPemohon', 'jenisPermohonan',
-          'statusTanah', 'keadaanTanah', 'kecamatan', 'desa', 'luas', 'luas302',
-          'luasSU', 'no305', 'nib', 'notaris', 'biayaUkur', 'tanggalBerkas',
-          'keterangan', 'petugasPemetaan', 'posisiBerkasMetaan', 'keteranganPemetaan'
+          'petugasPemetaan', 'posisiBerkasMetaan', 'keteranganPemetaan'
         ],
       }
 

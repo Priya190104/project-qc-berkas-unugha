@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Eye, Edit, Trash2, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { STATUS_COLORS, STATUS_LABELS, formatDate } from '@/lib/constants'
+import { STATUS_COLORS, STATUS_LABELS, formatDate, getStatusColor, getStatusLabel } from '@/lib/constants'
 import { useCanAction, useCanEditSection } from '@/lib/auth/hooks'
 import { getCurrentUser } from '@/lib/auth'
 import { Berkas } from '@prisma/client'
@@ -223,8 +223,8 @@ export function BerkasListClient({ berkasData, riwayatData = [] }: BerkasListCli
                       {item.kecamatan} / {item.desa}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[item.statusBerkas as keyof typeof STATUS_COLORS]}`}>
-                        {STATUS_LABELS[item.statusBerkas as keyof typeof STATUS_LABELS]}
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.statusBerkas || '')}`}>
+                        {getStatusLabel(item.statusBerkas || '')}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">

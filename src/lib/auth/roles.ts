@@ -31,9 +31,9 @@ export interface RolePermissions {
  * Berdasarkan requirement:
  * - ADMIN: Akses penuh semua section
  * - DATA_BERKAS: Hanya section DATA_BERKAS
- * - DATA_UKUR: Section DATA_BERKAS + DATA_UKUR
- * - DATA_PEMETAAN: Section DATA_BERKAS + DATA_PEMETAAN
- * - QUALITY_CONTROL: View dan move stage saja
+ * - DATA_UKUR: Hanya section DATA_UKUR (DATA_BERKAS dan DATA_PEMETAAN read-only)
+ * - DATA_PEMETAAN: Hanya section DATA_PEMETAAN (DATA_BERKAS dan DATA_UKUR read-only)
+ * - QUALITY_CONTROL: View dan move stage saja (semua section read-only)
  */
 export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   [UserRole.ADMIN]: {
@@ -61,7 +61,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canDelete: false,
     canMoveStage: true,
     canPrint: true,
-    editableSections: ['DATA_BERKAS', 'DATA_UKUR'],
+    editableSections: ['DATA_UKUR'],
   },
   [UserRole.DATA_PEMETAAN]: {
     canView: true,
@@ -70,7 +70,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canDelete: false,
     canMoveStage: true,
     canPrint: true,
-    editableSections: ['DATA_BERKAS', 'DATA_PEMETAAN'],
+    editableSections: ['DATA_PEMETAAN'],
   },
   [UserRole.QUALITY_CONTROL]: {
     canView: true,
@@ -151,8 +151,8 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
  */
 export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Akses penuh ke semua fitur dan data',
-  [UserRole.DATA_BERKAS]: 'Mengelola data berkas tanah',
-  [UserRole.DATA_UKUR]: 'Mengelola data ukur dan pengukuran',
-  [UserRole.DATA_PEMETAAN]: 'Mengelola data pemetaan',
-  [UserRole.QUALITY_CONTROL]: 'Melakukan quality control dan approval',
+  [UserRole.DATA_BERKAS]: 'Mengelola section DATA BERKAS saja',
+  [UserRole.DATA_UKUR]: 'Mengelola section DATA UKUR saja (section lain read-only)',
+  [UserRole.DATA_PEMETAAN]: 'Mengelola section DATA PEMETAAN saja (section lain read-only)',
+  [UserRole.QUALITY_CONTROL]: 'Melakukan quality control dan approval (read-only)',
 }

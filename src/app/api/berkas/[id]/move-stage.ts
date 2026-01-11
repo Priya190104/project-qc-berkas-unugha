@@ -17,8 +17,8 @@ import { UserRole } from '@/lib/auth/roles'
 
 const STAGE_PROGRESSION: Record<string, string> = {
   DATA_BERKAS: 'DATA_UKUR',
-  DATA_UKUR: 'PEMETAAN',
-  PEMETAAN: 'KKS',
+  DATA_UKUR: 'DATA_PEMETAAN',
+  DATA_PEMETAAN: 'KKS',
   KKS: 'KASI',
   KASI: 'SELESAI',
 }

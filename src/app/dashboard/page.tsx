@@ -23,6 +23,7 @@ async function getDashboardData() {
     const statusBreakdown: Record<string, number> = {
       DATA_BERKAS: 0,
       DATA_UKUR: 0,
+      DATA_PEMETAAN: 0,
       PEMETAAN: 0,
       KKS: 0,
       KASI: 0,
@@ -52,7 +53,7 @@ async function getDashboardData() {
         statusBreakdown: {
           DATA_BERKAS: 0,
           DATA_UKUR: 0,
-          PEMETAAN: 0,
+          DATA_PEMETAAN: 0,
           KKS: 0,
           KASI: 0,
           SELESAI: 0,

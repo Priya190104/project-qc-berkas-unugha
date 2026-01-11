@@ -1,6 +1,6 @@
 'use client'
 
-import { STATUS_LABELS } from '@/lib/constants'
+import { STATUS_LABELS, getStatusLabel } from '@/lib/constants'
 import { Card } from '@/components/ui/card'
 
 interface StatusOverviewProps {
@@ -19,7 +19,7 @@ export function StatusOverview({ statusBreakdown }: StatusOverviewProps) {
         return 'bg-blue-500'
       case 'DATA_UKUR':
         return 'bg-yellow-500'
-      case 'PEMETAAN':
+      case 'DATA_PEMETAAN':
         return 'bg-purple-500'
       case 'KKS':
         return 'bg-indigo-500'
@@ -43,7 +43,7 @@ export function StatusOverview({ statusBreakdown }: StatusOverviewProps) {
         {statuses.map(([status, count]) => {
           const percentage = totalBerkas > 0 ? (count / totalBerkas) * 100 : 0
           const colorClass = getStatusColor(status)
-          const label = STATUS_LABELS[status as keyof typeof STATUS_LABELS] || status
+          const label = getStatusLabel(status)
 
           return (
             <div key={status}>

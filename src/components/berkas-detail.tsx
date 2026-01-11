@@ -6,7 +6,7 @@ import { Berkas } from '@prisma/client'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft } from 'lucide-react'
-import { STATUS_COLORS, STATUS_LABELS, formatDate } from '@/lib/constants'
+import { STATUS_COLORS, STATUS_LABELS, formatDate, getStatusColor, getStatusLabel } from '@/lib/constants'
 import { BerkasJourneyTimeline } from './berkas-journey-timeline'
 import { BerkasQC } from './berkas-qc'
 
@@ -66,8 +66,8 @@ export function BerkasDetail({ berkas, riwayat = [] }: BerkasDetailProps) {
               <h3 className="text-lg font-semibold text-slate-900">Status Berkas</h3>
               <p className="text-sm text-slate-600 mt-1">Tgl Masuk: {formatDate(berkas.tanggalBerkas)}</p>
             </div>
-            <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${STATUS_COLORS[berkas.statusBerkas as keyof typeof STATUS_COLORS]}`}>
-              {STATUS_LABELS[berkas.statusBerkas as keyof typeof STATUS_LABELS]}
+            <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${getStatusColor(berkas.statusBerkas || '')}`}>
+              {getStatusLabel(berkas.statusBerkas || '')}
             </span>
           </div>
         </Card>

@@ -1,7 +1,7 @@
 export const STATUS_COLORS: Record<string, string> = {
   DATA_BERKAS: 'bg-blue-100 text-blue-800',
   DATA_UKUR: 'bg-yellow-100 text-yellow-800',
-  PEMETAAN: 'bg-purple-100 text-purple-800',
+  DATA_PEMETAAN: 'bg-purple-100 text-purple-800',
   KKS: 'bg-indigo-100 text-indigo-800',
   KASI: 'bg-pink-100 text-pink-800',
   SELESAI: 'bg-green-100 text-green-800',
@@ -12,12 +12,22 @@ export const STATUS_COLORS: Record<string, string> = {
 export const STATUS_LABELS: Record<string, string> = {
   DATA_BERKAS: 'Data Berkas',
   DATA_UKUR: 'Data Ukur',
-  PEMETAAN: 'Pemetaan',
+  DATA_PEMETAAN: 'Pemetaan',
   KKS: 'KKS',
   KASI: 'KASI',
   SELESAI: 'Selesai',
   REVISI: 'Revisi',
   TUNGGAKAN: 'Tunggakan',
+}
+
+// Helper function to safely get status color with fallback
+export const getStatusColor = (status: string): string => {
+  return STATUS_COLORS[status] || 'bg-gray-100 text-gray-800'
+}
+
+// Helper function to safely get status label with fallback
+export const getStatusLabel = (status: string): string => {
+  return STATUS_LABELS[status] || status || 'Unknown'
 }
 
 export const JENIS_PERMOHONAN = [
