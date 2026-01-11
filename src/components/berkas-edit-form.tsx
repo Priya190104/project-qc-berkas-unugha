@@ -254,17 +254,22 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.noBerkas.trim()) {
-      alert('No. Berkas harus diisi')
-      return
-    }
-    if (!formData.namaPemohon.trim()) {
-      alert('Nama Pemohon harus diisi')
-      return
-    }
-    if (!formData.jenisPermohonan) {
-      alert('Jenis Permohonan harus dipilih')
-      return
+    // Validate required fields only if user can edit DATA_BERKAS
+    const canEditDataBerkas = canEditSection(user?.role, 'DATA_BERKAS')
+    
+    if (canEditDataBerkas) {
+      if (!formData.noBerkas.trim()) {
+        alert('No. Berkas harus diisi')
+        return
+      }
+      if (!formData.namaPemohon.trim()) {
+        alert('Nama Pemohon harus diisi')
+        return
+      }
+      if (!formData.jenisPermohonan) {
+        alert('Jenis Permohonan harus dipilih')
+        return
+      }
     }
 
     setIsSubmitting(true)
@@ -313,10 +318,7 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
       const addFieldIfAllowed = (fieldName: string, value: any) => {
         if (allowedFields.includes(fieldName)) {
           // Only add if value is not null/undefined/empty string
-          // But always include required fields: noBerkas, namaPemohon, jenisPermohonan
-          if (['noBerkas', 'namaPemohon', 'jenisPermohonan'].includes(fieldName)) {
-            payload[fieldName] = value
-          } else if (value !== null && value !== undefined && value !== '') {
+          if (value !== null && value !== undefined && value !== '') {
             payload[fieldName] = value
           }
         }
