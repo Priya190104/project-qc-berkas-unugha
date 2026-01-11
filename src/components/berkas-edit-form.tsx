@@ -347,6 +347,11 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
       if (allowedFields.includes('posisiBerkasMetaan')) payload.posisiBerkasMetaan = formData.posisiBerkasMetaan || null
       if (allowedFields.includes('keteranganPemetaan')) payload.keteranganPemetaan = formData.keteranganPemetaan || null
 
+      console.log('User role:', user?.role)
+      console.log('Allowed fields:', allowedFields)
+      console.log('Payload keys being sent:', Object.keys(payload))
+      console.log('Full payload:', payload)
+
       const response = await fetch(`/api/berkas/${berkas.id}`, {
         method: 'PUT',
         headers: {

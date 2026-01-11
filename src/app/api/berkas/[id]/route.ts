@@ -176,6 +176,10 @@ export async function PUT(
     const body = await request.json()
     const updatedFieldKeys = Object.keys(body)
 
+    console.log('PUT /api/berkas/[id] - User role:', user.role)
+    console.log('PUT /api/berkas/[id] - Request body keys:', updatedFieldKeys)
+    console.log('PUT /api/berkas/[id] - Full body:', body)
+
     // Detect edited sections BEFORE filtering
     const editedSections = detectEditedSection(updatedFieldKeys)
 
@@ -197,6 +201,9 @@ export async function PUT(
         filteredBody[key] = value
       }
     }
+
+    console.log('PUT /api/berkas/[id] - After filtering body keys:', Object.keys(filteredBody))
+    console.log('PUT /api/berkas/[id] - Filtered body:', filteredBody)
 
     // NOW detect sections from filtered fields
     const filteredFieldKeys = Object.keys(filteredBody)
