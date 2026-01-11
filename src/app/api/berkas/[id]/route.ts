@@ -176,11 +176,34 @@ export async function PUT(
     const body = await request.json()
     const updatedFieldKeys = Object.keys(body)
 
-    // Detect edited sections
+    // Detect edited sections BEFORE filtering
     const editedSections = detectEditedSection(updatedFieldKeys)
 
-    // Validasi edit permission per section
-    const unauthorizedSections = editedSections.filter(
+    // FIRST: Filter to only allowed fields for this user's role
+    // This ensures we only process fields the user is allowed to edit
+    const allowedFieldsByRole: Record<string, string[]> = {
+      ADMIN: Object.values(SECTION_FIELDS).flat(),
+      DATA_BERKAS: SECTION_FIELDS.DATA_BERKAS,
+      DATA_UKUR: [...SECTION_FIELDS.DATA_BERKAS, ...SECTION_FIELDS.DATA_UKUR],
+      DATA_PEMETAAN: [...SECTION_FIELDS.DATA_BERKAS, ...SECTION_FIELDS.DATA_PEMETAAN],
+    }
+    
+    const roleAllowedFields = allowedFieldsByRole[user.role] || SECTION_FIELDS.DATA_BERKAS
+    
+    // Filter body to only include fields the user's role is allowed to edit
+    const filteredBody: Record<string, any> = {}
+    for (const [key, value] of Object.entries(body)) {
+      if (roleAllowedFields.includes(key)) {
+        filteredBody[key] = value
+      }
+    }
+
+    // NOW detect sections from filtered fields
+    const filteredFieldKeys = Object.keys(filteredBody)
+    const allowedSections = detectEditedSection(filteredFieldKeys)
+
+    // Validasi edit permission per section (should always pass now since we filtered)
+    const unauthorizedSections = allowedSections.filter(
       (section) => !canEditSection(user.role, section)
     )
 
@@ -188,7 +211,7 @@ export async function PUT(
       return NextResponse.json(
         {
           error: `Forbidden: Your role "${user.role}" cannot edit sections: ${unauthorizedSections.join(', ')}`,
-          allowed_sections: editedSections.filter((section) =>
+          allowed_sections: allowedSections.filter((section) =>
             canEditSection(user.role, section)
           ),
         },
@@ -197,7 +220,7 @@ export async function PUT(
     }
 
     // Filter data untuk hanya field yang diizinkan
-    const filteredData = filterDataByEditableSections(body, editedSections)
+    const filteredData = filterDataByEditableSections(filteredBody, allowedSections)
 
     // Convert date fields if present
     const dataToUpdate: Record<string, any> = {}
