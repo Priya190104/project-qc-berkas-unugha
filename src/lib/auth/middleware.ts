@@ -29,6 +29,7 @@ export async function extractUserFromRequest(
     const authHeader = request.headers.get('authorization')
     
     if (!authHeader) {
+      console.warn('DEBUG: No authorization header found')
       return null
     }
 
@@ -36,6 +37,7 @@ export async function extractUserFromRequest(
     // Format: Authorization: Bearer {token}
     const tokenMatch = authHeader.match(/Bearer\s+(.+)/)
     if (!tokenMatch) {
+      console.warn('DEBUG: Invalid Bearer token format')
       return null
     }
 
@@ -45,6 +47,7 @@ export async function extractUserFromRequest(
     // Format: header.payload.signature
     const parts = token.split('.')
     if (parts.length !== 3) {
+      console.warn('DEBUG: JWT token does not have 3 parts:', parts.length)
       return null
     }
 
@@ -60,13 +63,16 @@ export async function extractUserFromRequest(
       const { userId, email, name, role } = payload
       
       if (!userId || !email || !role) {
+        console.warn('DEBUG: Missing required fields in JWT payload:', { userId: !!userId, email: !!email, role: !!role })
         return null
       }
 
       if (!Object.values(UserRole).includes(role)) {
+        console.warn('DEBUG: Invalid role in JWT:', role, 'Valid roles:', Object.values(UserRole))
         return null
       }
 
+      console.log('DEBUG: User extracted successfully:', { userId, email, role })
       return {
         userId,
         email,
@@ -75,11 +81,12 @@ export async function extractUserFromRequest(
         isAuthenticated: true,
       }
     } catch (parseError) {
-      console.error('Error parsing JWT payload:', parseError)
+      console.error('ERROR: Failed to parse JWT payload:', parseError)
+      console.error('DEBUG: Payload string (first 50 chars):', parts[1].substring(0, 50))
       return null
     }
   } catch (error) {
-    console.error('Error extracting user from request:', error)
+    console.error('ERROR: Error extracting user from request:', error)
     return null
   }
 }

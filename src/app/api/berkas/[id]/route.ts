@@ -136,14 +136,18 @@ export async function PUT(
     // Validasi user
     const user = await extractUserFromRequest(request)
     if (!user || !user.isAuthenticated) {
+      console.error('ERROR: PUT /api/berkas/[id] - Authentication failed - user extraction returned null or not authenticated')
       return NextResponse.json(
         { error: 'Unauthorized: Authentication required' },
         { status: 401 }
       )
     }
 
+    console.log('DEBUG: PUT /api/berkas/[id] - User authenticated successfully:', { userId: user.userId, role: user.role })
+
     // Validasi basic permission
     if (!canPerformAction(user.role, 'edit')) {
+      console.error('ERROR: PUT /api/berkas/[id] - User cannot edit:', { role: user.role })
       return NextResponse.json(
         {
           error: `Forbidden: Your role "${user.role}" cannot edit berkas`,
