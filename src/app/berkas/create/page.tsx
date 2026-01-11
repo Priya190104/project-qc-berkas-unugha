@@ -554,7 +554,7 @@ function BerkasCreateContent() {
                 <div>
                   <label className="block text-sm font-medium text-slate-900 mb-1">Jenis Permohonan</label>
                   <select name="jenisPermohonan" value={formData.jenisPermohonan} onChange={handleInputChange} disabled={!canEditSection(user?.role, 'DATA_BERKAS')} className={`w-full px-3 py-2 border border-slate-300 rounded-lg ${!canEditSection(user?.role, 'DATA_BERKAS') ? 'bg-slate-100 cursor-not-allowed text-slate-500' : ''}`}>
-                    <option value="">Ukur PIB</option>
+                    <option value="">Jenis Permohonan</option>
                     {JENIS_PERMOHONAN.map(jenis => (<option key={jenis} value={jenis}>{jenis}</option>))}
                   </select>
                 </div>
