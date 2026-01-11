@@ -215,12 +215,21 @@ export async function PUT(
     )
 
     if (unauthorizedSections.length > 0) {
+      console.error('ERROR - Unauthorized sections:', unauthorizedSections)
+      console.error('ERROR - User role:', user.role)
+      console.error('ERROR - Allowed sections (detected):', allowedSections)
+      console.error('ERROR - Role allowed fields:', roleAllowedFields)
+      console.error('ERROR - Filtered body keys:', Object.keys(filteredBody))
+      
       return NextResponse.json(
         {
           error: `Forbidden: Your role "${user.role}" cannot edit sections: ${unauthorizedSections.join(', ')}`,
-          allowed_sections: allowedSections.filter((section) =>
-            canEditSection(user.role, section)
-          ),
+          debug: {
+            allowed_sections: allowedSections,
+            unauthorized_sections: unauthorizedSections,
+            user_role: user.role,
+            filtered_body_keys: Object.keys(filteredBody),
+          }
         },
         { status: 403 }
       )
