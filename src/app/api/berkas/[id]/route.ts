@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, canEditSection, BerkasSection } from '@/lib/auth/roles'
@@ -238,6 +239,10 @@ export async function PUT(
       },
     })
 
+    // Revalidate berkas pages
+    revalidatePath('/berkas')
+    revalidatePath(`/berkas/${berkasId}`)
+
     return NextResponse.json({
       success: true,
       data: updatedBerkas,
@@ -303,6 +308,9 @@ export async function DELETE(
     await prisma.berkas.delete({
       where: { id: berkasId },
     })
+
+    // Revalidate berkas list page
+    revalidatePath('/berkas')
 
     return NextResponse.json({
       success: true,

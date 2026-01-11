@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { UserRole } from '@/lib/auth/roles'
@@ -120,6 +121,9 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     })
+
+    // Revalidate settings page
+    revalidatePath('/settings')
 
     return NextResponse.json(
       {

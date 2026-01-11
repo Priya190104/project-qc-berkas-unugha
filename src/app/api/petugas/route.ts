@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 
@@ -98,6 +99,11 @@ export async function POST(request: NextRequest) {
         tipe: body.tipe,
       },
     })
+
+    // Revalidate pages that show petugas
+    revalidatePath('/berkas')
+    revalidatePath('/berkas/create')
+    revalidatePath('/dashboard')
 
     return NextResponse.json(
       {

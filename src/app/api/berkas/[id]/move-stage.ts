@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction } from '@/lib/auth/roles'
@@ -74,6 +75,9 @@ export async function DELETE(
         catatan: `Berkas dihapus oleh ADMIN: ${user.name}`,
       },
     })
+
+    // Revalidate berkas pages
+    revalidatePath('/berkas')
 
     return NextResponse.json({
       success: true,
@@ -165,6 +169,10 @@ export async function POST(
         catatan: body.catatan || `Berkas dimulai oleh ${user.role}: ${user.name}`,
       },
     })
+
+    // Revalidate berkas pages
+    revalidatePath('/berkas')
+    revalidatePath(`/berkas/${berkasId}`)
 
     return NextResponse.json({
       success: true,

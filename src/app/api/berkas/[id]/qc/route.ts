@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, UserRole } from '@/lib/auth/roles'
@@ -150,6 +151,10 @@ export async function POST(
         catatan: catatan,
       },
     })
+
+    // Revalidate berkas pages
+    revalidatePath('/berkas')
+    revalidatePath(`/berkas/${berkasId}`)
 
     return NextResponse.json({
       success: true,
