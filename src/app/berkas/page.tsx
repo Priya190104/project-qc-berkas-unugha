@@ -8,15 +8,27 @@ import { revalidatePath } from 'next/cache'
 export const revalidate = 5
 
 async function getBerkasList(): Promise<Berkas[]> {
-  return await prisma.berkas.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+  try {
+    return await prisma.berkas.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (error) {
+    console.error('Error fetching berkas list:', error)
+    // Return empty array if database is unavailable (e.g., during build)
+    return []
+  }
 }
 
 async function getRiwayatList() {
-  return await prisma.riwayatBerkas.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
+  try {
+    return await prisma.riwayatBerkas.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (error) {
+    console.error('Error fetching riwayat list:', error)
+    // Return empty array if database is unavailable
+    return []
+  }
 }
 
 export default async function BerkasListPage() {
