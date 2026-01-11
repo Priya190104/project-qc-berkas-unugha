@@ -78,7 +78,12 @@ Setelah deploy berhasil, jalankan migrations di Railway database:
 # Set DATABASE_URL ke Railway connection string
 set DATABASE_URL=postgresql://...
 
-# Run migrations
+# Run migrations1. Vercel Dashboard > Project > Settings
+2. Environment Variables
+3. Cari DATABASE_URL
+4. HAPUS value lama
+5. PASTE value baru dari Railway
+6. Klik "Save" atau "Update"
 npx prisma migrate deploy
 
 # Seed database (optional, untuk test data)

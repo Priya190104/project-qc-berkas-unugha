@@ -182,6 +182,7 @@ export async function PUT(
 
     // FIRST: Filter to only allowed fields for this user's role
     // This ensures we only process fields the user is allowed to edit
+    // NEW FIX: Also filtering out null/empty values to prevent false section detection
     const allowedFieldsByRole: Record<string, string[]> = {
       ADMIN: Object.values(SECTION_FIELDS).flat(),
       DATA_BERKAS: SECTION_FIELDS.DATA_BERKAS,
