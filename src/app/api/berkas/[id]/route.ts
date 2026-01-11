@@ -242,6 +242,7 @@ export async function PUT(
     // Revalidate berkas pages
     revalidatePath('/berkas')
     revalidatePath(`/berkas/${berkasId}`)
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
@@ -311,6 +312,7 @@ export async function DELETE(
 
     // Revalidate berkas list page
     revalidatePath('/berkas')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,

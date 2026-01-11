@@ -6,34 +6,60 @@ import { StatusOverview } from '@/components/dashboard/status-overview'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+// Revalidate dashboard setiap 5 detik
+export const revalidate = 5
+
 async function getDashboardData() {
-  const berkas = await prisma.berkas.findMany()
-  
-  const stats = {
-    totalBerkas: berkas.length,
-    dalamProses: berkas.filter((b: any) => b.statusBerkas !== 'SELESAI').length,
-    selesai: berkas.filter((b: any) => b.statusBerkas === 'SELESAI').length,
-    tunggakan: berkas.filter((b: any) => b.statusBerkas === 'TUNGGAKAN').length,
-  }
-
-  const statusBreakdown: Record<string, number> = {
-    DATA_BERKAS: 0,
-    DATA_UKUR: 0,
-    PEMETAAN: 0,
-    KKS: 0,
-    KASI: 0,
-    SELESAI: 0,
-    REVISI: 0,
-    TUNGGAKAN: 0,
-  }
-
-  berkas.forEach((b: any) => {
-    if (b.statusBerkas in statusBreakdown) {
-      statusBreakdown[b.statusBerkas]++
+  try {
+    const berkas = await prisma.berkas.findMany()
+    
+    const stats = {
+      totalBerkas: berkas.length,
+      dalamProses: berkas.filter((b: any) => b.statusBerkas !== 'SELESAI').length,
+      selesai: berkas.filter((b: any) => b.statusBerkas === 'SELESAI').length,
+      tunggakan: berkas.filter((b: any) => b.statusBerkas === 'TUNGGAKAN').length,
     }
-  })
 
-  return { stats, statusBreakdown }
+    const statusBreakdown: Record<string, number> = {
+      DATA_BERKAS: 0,
+      DATA_UKUR: 0,
+      PEMETAAN: 0,
+      KKS: 0,
+      KASI: 0,
+      SELESAI: 0,
+      REVISI: 0,
+      TUNGGAKAN: 0,
+    }
+
+    berkas.forEach((b: any) => {
+      if (b.statusBerkas in statusBreakdown) {
+        statusBreakdown[b.statusBerkas]++
+      }
+    })
+
+    return { stats, statusBreakdown }
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error)
+    // Return empty stats if database is unavailable
+    return {
+      stats: {
+        totalBerkas: 0,
+        dalamProses: 0,
+        selesai: 0,
+        tunggakan: 0,
+      },
+      statusBreakdown: {
+        DATA_BERKAS: 0,
+        DATA_UKUR: 0,
+        PEMETAAN: 0,
+        KKS: 0,
+        KASI: 0,
+        SELESAI: 0,
+        REVISI: 0,
+        TUNGGAKAN: 0,
+      },
+    }
+  }
 }
 
 export default async function DashboardPage() {

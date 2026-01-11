@@ -222,6 +222,7 @@ export async function POST(request: NextRequest) {
 
     // Revalidate berkas list page to show new data
     revalidatePath('/berkas')
+    revalidatePath('/dashboard')
 
     return NextResponse.json(
       {

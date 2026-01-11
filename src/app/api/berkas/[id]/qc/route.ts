@@ -155,6 +155,7 @@ export async function POST(
     // Revalidate berkas pages
     revalidatePath('/berkas')
     revalidatePath(`/berkas/${berkasId}`)
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
