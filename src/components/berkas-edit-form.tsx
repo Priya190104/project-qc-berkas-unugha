@@ -537,8 +537,8 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
                 <label className="block text-sm font-medium text-slate-900 mb-1">Keadaan Tanah</label>
                 <select name="keadaanTanah" value={formData.keadaanTanah} onChange={handleInputChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
                   <option value="">Pilih keadaan tanah</option>
-                  <option value="Belum Ada">Belum Ada</option>
-                  <option value="Sudah Ada">Sudah Ada</option>
+                  <option value="Pertanian">Pertanian</option>
+                  <option value="Non-Pertanian">Non-Pertanian</option>
                 </select>
               </div>
             </div>

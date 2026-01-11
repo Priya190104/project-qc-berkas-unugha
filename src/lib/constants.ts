@@ -21,11 +21,13 @@ export const STATUS_LABELS: Record<string, string> = {
 }
 
 export const JENIS_PERMOHONAN = [
-  'Pemisahan',
+  'Ukur PB',
   'Pemecahan',
   'Penggabungan',
-  'Penataan',
-  'Perbaikan Data',
+  'Pemisahan',
+  'Penataan Batas',
+  'Pengembalian Batas',
+  'Ukur Ulang',
 ]
 
 export const KECAMATAN_CILACAP = [

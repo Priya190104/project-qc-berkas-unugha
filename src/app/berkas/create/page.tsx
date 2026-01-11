@@ -595,8 +595,8 @@ function BerkasCreateContent() {
                   <label className="block text-sm font-medium text-slate-900 mb-1">Keadaan Tanah</label>
                   <select name="keadaanTanah" value={formData.keadaanTanah} onChange={handleInputChange} disabled={!canEditSection(user?.role, 'DATA_BERKAS')} className={`w-full px-3 py-2 border border-slate-300 rounded-lg ${!canEditSection(user?.role, 'DATA_BERKAS') ? 'bg-slate-100 cursor-not-allowed text-slate-500' : ''}`}>
                     <option value="">Pilih keadaan tanah</option>
-                    <option value="Belum Ada">Belum Ada</option>
-                    <option value="Sudah Ada">Sudah Ada</option>
+                    <option value="Pertanian">Pertanian</option>
+                    <option value="Non-Pertanian">Non-Pertanian</option>
                   </select>
                 </div>
               </div>
