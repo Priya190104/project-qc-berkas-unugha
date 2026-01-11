@@ -311,41 +311,55 @@ export function BerkasEditForm({ berkas }: BerkasEditFormProps) {
         ],
       }
 
-      // Build payload with only allowed fields
+      // Build payload with only allowed fields AND only non-empty values
       const allowedFields = allowedFieldsByRole[user?.role || 'DATA_BERKAS'] || allowedFieldsByRole.DATA_BERKAS
       const payload: Record<string, any> = {}
 
-      if (allowedFields.includes('noBerkas')) payload.noBerkas = formData.noBerkas
-      if (allowedFields.includes('di302')) payload.di302 = formData.di302 || null
-      if (allowedFields.includes('tanggal302')) payload.tanggal302 = formData.tanggal302 || null
-      if (allowedFields.includes('namaPemohon')) payload.namaPemohon = formData.namaPemohon
-      if (allowedFields.includes('jenisPermohonan')) payload.jenisPermohonan = formData.jenisPermohonan
-      if (allowedFields.includes('statusTanah')) payload.statusTanah = formData.statusTanah || null
-      if (allowedFields.includes('keadaanTanah')) payload.keadaanTanah = formData.keadaanTanah || null
-      if (allowedFields.includes('kecamatan')) payload.kecamatan = formData.kecamatan || null
-      if (allowedFields.includes('desa')) payload.desa = formData.desa || null
-      if (allowedFields.includes('luas')) payload.luas = formData.luas || null
-      if (allowedFields.includes('luas302')) payload.luas302 = formData.luas302 || null
-      if (allowedFields.includes('luasSU')) payload.luasSU = formData.luasSU || null
-      if (allowedFields.includes('no305')) payload.no305 = formData.no305 || null
-      if (allowedFields.includes('nib')) payload.nib = formData.nib || null
-      if (allowedFields.includes('notaris')) payload.notaris = formData.notaris || null
-      if (allowedFields.includes('biayaUkur')) payload.biayaUkur = formData.biayaUkur ? parseFloat(formData.biayaUkur) : null
-      if (allowedFields.includes('tanggalBerkas')) payload.tanggalBerkas = formData.tanggalBerkas || new Date().toISOString()
-      if (allowedFields.includes('keterangan')) payload.keterangan = formData.keterangan || null
-      if (allowedFields.includes('koordinatorUkur')) payload.koordinatorUkur = formData.koordinatorUkur || null
-      if (allowedFields.includes('nip')) payload.nip = formData.nip || null
-      if (allowedFields.includes('suratTugasAn')) payload.suratTugasAn = formData.suratTugasAn || null
-      if (allowedFields.includes('petugasUkur')) payload.petugasUkur = formData.petugasUkur || null
-      if (allowedFields.includes('noGu')) payload.noGu = formData.noGu || null
-      if (allowedFields.includes('noStpPersiapuanUkur')) payload.noStpPersiapuanUkur = formData.noStpPersiapuanUkur || null
-      if (allowedFields.includes('tanggalStpPersiapuan')) payload.tanggalStpPersiapuan = formData.tanggalStpPersiapuan || null
-      if (allowedFields.includes('noStp')) payload.noStp = formData.noStp || null
-      if (allowedFields.includes('tanggalStp')) payload.tanggalStp = formData.tanggalStp || null
-      if (allowedFields.includes('posisiBerkasUkur')) payload.posisiBerkasUkur = formData.posisiBerkasUkur || null
-      if (allowedFields.includes('petugasPemetaan')) payload.petugasPemetaan = formData.petugasPemetaan || null
-      if (allowedFields.includes('posisiBerkasMetaan')) payload.posisiBerkasMetaan = formData.posisiBerkasMetaan || null
-      if (allowedFields.includes('keteranganPemetaan')) payload.keteranganPemetaan = formData.keteranganPemetaan || null
+      // Helper function to only include non-empty values
+      const addFieldIfAllowed = (fieldName: string, value: any) => {
+        if (allowedFields.includes(fieldName)) {
+          // Only add if value is not null/undefined/empty string
+          // But always include required fields: noBerkas, namaPemohon, jenisPermohonan
+          if (['noBerkas', 'namaPemohon', 'jenisPermohonan'].includes(fieldName)) {
+            payload[fieldName] = value
+          } else if (value !== null && value !== undefined && value !== '') {
+            payload[fieldName] = value
+          }
+        }
+      }
+
+      // Add all allowed fields, but only if they have values
+      addFieldIfAllowed('noBerkas', formData.noBerkas)
+      addFieldIfAllowed('di302', formData.di302)
+      addFieldIfAllowed('tanggal302', formData.tanggal302)
+      addFieldIfAllowed('namaPemohon', formData.namaPemohon)
+      addFieldIfAllowed('jenisPermohonan', formData.jenisPermohonan)
+      addFieldIfAllowed('statusTanah', formData.statusTanah)
+      addFieldIfAllowed('keadaanTanah', formData.keadaanTanah)
+      addFieldIfAllowed('kecamatan', formData.kecamatan)
+      addFieldIfAllowed('desa', formData.desa)
+      addFieldIfAllowed('luas', formData.luas)
+      addFieldIfAllowed('luas302', formData.luas302)
+      addFieldIfAllowed('luasSU', formData.luasSU)
+      addFieldIfAllowed('no305', formData.no305)
+      addFieldIfAllowed('nib', formData.nib)
+      addFieldIfAllowed('notaris', formData.notaris)
+      addFieldIfAllowed('biayaUkur', formData.biayaUkur ? parseFloat(formData.biayaUkur) : null)
+      addFieldIfAllowed('tanggalBerkas', formData.tanggalBerkas)
+      addFieldIfAllowed('keterangan', formData.keterangan)
+      addFieldIfAllowed('koordinatorUkur', formData.koordinatorUkur)
+      addFieldIfAllowed('nip', formData.nip)
+      addFieldIfAllowed('suratTugasAn', formData.suratTugasAn)
+      addFieldIfAllowed('petugasUkur', formData.petugasUkur)
+      addFieldIfAllowed('noGu', formData.noGu)
+      addFieldIfAllowed('noStpPersiapuanUkur', formData.noStpPersiapuanUkur)
+      addFieldIfAllowed('tanggalStpPersiapuan', formData.tanggalStpPersiapuan)
+      addFieldIfAllowed('noStp', formData.noStp)
+      addFieldIfAllowed('tanggalStp', formData.tanggalStp)
+      addFieldIfAllowed('posisiBerkasUkur', formData.posisiBerkasUkur)
+      addFieldIfAllowed('petugasPemetaan', formData.petugasPemetaan)
+      addFieldIfAllowed('posisiBerkasMetaan', formData.posisiBerkasMetaan)
+      addFieldIfAllowed('keteranganPemetaan', formData.keteranganPemetaan)
 
       console.log('User role:', user?.role)
       console.log('Allowed fields:', allowedFields)
