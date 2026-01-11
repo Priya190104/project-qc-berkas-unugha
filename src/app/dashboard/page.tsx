@@ -38,27 +38,31 @@ async function getDashboardData() {
     })
 
     return { stats, statusBreakdown }
-  } catch (error) {
-    console.error('Error fetching dashboard data:', error)
-    // Return empty stats if database is unavailable
-    return {
-      stats: {
-        totalBerkas: 0,
-        dalamProses: 0,
-        selesai: 0,
-        tunggakan: 0,
-      },
-      statusBreakdown: {
-        DATA_BERKAS: 0,
-        DATA_UKUR: 0,
-        PEMETAAN: 0,
-        KKS: 0,
-        KASI: 0,
-        SELESAI: 0,
-        REVISI: 0,
-        TUNGGAKAN: 0,
-      },
+  } catch (error: any) {
+    // Only catch connection errors during build
+    if (error.message?.includes('ECONNREFUSED') || error.message?.includes('timeout')) {
+      console.warn('Database connection unavailable (likely during build), returning empty stats')
+      return {
+        stats: {
+          totalBerkas: 0,
+          dalamProses: 0,
+          selesai: 0,
+          tunggakan: 0,
+        },
+        statusBreakdown: {
+          DATA_BERKAS: 0,
+          DATA_UKUR: 0,
+          PEMETAAN: 0,
+          KKS: 0,
+          KASI: 0,
+          SELESAI: 0,
+          REVISI: 0,
+          TUNGGAKAN: 0,
+        },
+      }
     }
+    // Re-throw other errors so they're visible
+    throw error
   }
 }
 

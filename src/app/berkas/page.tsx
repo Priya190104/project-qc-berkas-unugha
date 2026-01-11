@@ -12,10 +12,14 @@ async function getBerkasList(): Promise<Berkas[]> {
     return await prisma.berkas.findMany({
       orderBy: { createdAt: 'desc' },
     })
-  } catch (error) {
-    console.error('Error fetching berkas list:', error)
-    // Return empty array if database is unavailable (e.g., during build)
-    return []
+  } catch (error: any) {
+    // Only catch connection errors during build
+    if (error.message?.includes('ECONNREFUSED') || error.message?.includes('timeout')) {
+      console.warn('Database connection unavailable (likely during build), returning empty array')
+      return []
+    }
+    // Re-throw other errors so they're not silently caught
+    throw error
   }
 }
 
@@ -24,10 +28,14 @@ async function getRiwayatList() {
     return await prisma.riwayatBerkas.findMany({
       orderBy: { createdAt: 'desc' },
     })
-  } catch (error) {
-    console.error('Error fetching riwayat list:', error)
-    // Return empty array if database is unavailable
-    return []
+  } catch (error: any) {
+    // Only catch connection errors during build
+    if (error.message?.includes('ECONNREFUSED') || error.message?.includes('timeout')) {
+      console.warn('Database connection unavailable (likely during build), returning empty array')
+      return []
+    }
+    // Re-throw other errors
+    throw error
   }
 }
 
