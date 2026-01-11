@@ -180,9 +180,6 @@ export async function PUT(
     console.log('PUT /api/berkas/[id] - Request body keys:', updatedFieldKeys)
     console.log('PUT /api/berkas/[id] - Full body:', body)
 
-    // Detect edited sections BEFORE filtering
-    const editedSections = detectEditedSection(updatedFieldKeys)
-
     // FIRST: Filter to only allowed fields for this user's role
     // This ensures we only process fields the user is allowed to edit
     const allowedFieldsByRole: Record<string, string[]> = {
@@ -195,9 +192,10 @@ export async function PUT(
     const roleAllowedFields = allowedFieldsByRole[user.role] || SECTION_FIELDS.DATA_BERKAS
     
     // Filter body to only include fields the user's role is allowed to edit
+    // Also skip null/empty values to prevent false section detection
     const filteredBody: Record<string, any> = {}
     for (const [key, value] of Object.entries(body)) {
-      if (roleAllowedFields.includes(key)) {
+      if (roleAllowedFields.includes(key) && value !== null && value !== undefined && value !== '') {
         filteredBody[key] = value
       }
     }
@@ -205,9 +203,9 @@ export async function PUT(
     console.log('PUT /api/berkas/[id] - After filtering body keys:', Object.keys(filteredBody))
     console.log('PUT /api/berkas/[id] - Filtered body:', filteredBody)
 
-    // NOW detect sections from filtered fields
-    const filteredFieldKeys = Object.keys(filteredBody)
-    const allowedSections = detectEditedSection(filteredFieldKeys)
+    // NOW detect sections from FILTERED fields only
+    // This ensures we only validate permissions for sections the user actually edited
+    const allowedSections = detectEditedSection(Object.keys(filteredBody))
 
     // Validasi edit permission per section (should always pass now since we filtered)
     const unauthorizedSections = allowedSections.filter(
@@ -278,7 +276,7 @@ export async function PUT(
         statusLama: existingBerkas.statusBerkas,
         statusBaru: updatedBerkas.statusBerkas,
         diterima: user.name,
-        catatan: `Berkas diedit oleh ${user.role}: ${user.name}. Section: ${editedSections.join(', ')}`,
+        catatan: `Berkas diedit oleh ${user.role}: ${user.name}. Section: ${allowedSections.join(', ')}`,
       },
     })
 
@@ -291,7 +289,7 @@ export async function PUT(
       success: true,
       data: updatedBerkas,
       message: 'Berkas berhasil diperbarui',
-      edited_sections: editedSections,
+      edited_sections: allowedSections,
     })
   } catch (error: any) {
     console.error('Error updating berkas:', error.message || String(error))
