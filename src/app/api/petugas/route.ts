@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 
 export async function GET(request: NextRequest) {
@@ -91,14 +92,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create petugas
-    const petugas = await prisma.petugas.create({
-      data: {
-        nama: body.nama,
-        nip: body.nip || null,
-        tipe: body.tipe,
-      },
-    })
+    // Create petugas with retry logic
+    const petugas = await withRetry(
+      () => prisma.petugas.create({
+        data: {
+          nama: body.nama,
+          nip: body.nip || null,
+          tipe: body.tipe,
+        },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Revalidate pages that show petugas
     revalidatePath('/berkas')
@@ -114,7 +118,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error: any) {
-    console.error('Error creating petugas:', error)
+    console.error('Error creating petugas:', error.message || String(error))
 
     // Handle Prisma unique constraint error
     if (error.code === 'P2002') {
@@ -124,8 +128,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Gagal menambahkan petugas. Silakan coba lagi.' },
       { status: 500 }
     )
   }

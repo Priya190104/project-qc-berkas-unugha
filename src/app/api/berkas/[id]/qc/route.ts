@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, UserRole } from '@/lib/auth/roles'
 
@@ -131,10 +132,13 @@ export async function POST(
       updateData.qcKasiTanggal = new Date()
     }
 
-    const updatedBerkas = await prisma.berkas.update({
-      where: { id: berkasId },
-      data: updateData,
-    })
+    const updatedBerkas = await withRetry(
+      () => prisma.berkas.update({
+        where: { id: berkasId },
+        data: updateData,
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Log activity to RiwayatBerkas
     const catatan =
@@ -166,9 +170,17 @@ export async function POST(
       newStatus: newStatus,
     })
   } catch (error: any) {
-    console.error('Error submitting QC:', error)
+    console.error('Error submitting QC:', error.message || String(error))
+
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Gagal mensubmit QC. Silakan coba lagi.' },
       { status: 500 }
     )
   }

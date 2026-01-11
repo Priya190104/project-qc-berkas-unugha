@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { UserRole } from '@/lib/auth/roles'
 
@@ -122,18 +123,21 @@ export async function PATCH(
     if (role !== undefined) updateData.role = role
     if (active !== undefined) updateData.active = active
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: updateData,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        active: true,
-        createdAt: true,
-      },
-    })
+    const updatedUser = await withRetry(
+      () => prisma.user.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          active: true,
+          createdAt: true,
+        },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     return NextResponse.json({
       success: true,
@@ -147,9 +151,24 @@ export async function PATCH(
         { status: 404 }
       )
     }
-    console.error('Error updating user:', error)
+
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Email sudah digunakan oleh user lain' },
+        { status: 409 }
+      )
+    }
+
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
+    console.error('Error updating user:', error.message || String(error))
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Gagal memperbarui user. Silakan coba lagi.' },
       { status: 500 }
     )
   }
@@ -185,9 +204,12 @@ export async function DELETE(
       )
     }
 
-    await prisma.user.delete({
-      where: { id },
-    })
+    await withRetry(
+      () => prisma.user.delete({
+        where: { id },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Revalidate settings page
     revalidatePath('/settings')
@@ -203,9 +225,17 @@ export async function DELETE(
         { status: 404 }
       )
     }
-    console.error('Error deleting user:', error)
+
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
+    console.error('Error deleting user:', error.message || String(error))
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Gagal menghapus user. Silakan coba lagi.' },
       { status: 500 }
     )
   }

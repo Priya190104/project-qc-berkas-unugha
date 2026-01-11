@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { UserRole } from '@/lib/auth/roles'
 
@@ -103,24 +104,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create user
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password, // In production, should be hashed with bcrypt
-        role,
-        active: active !== undefined ? active : true,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        active: true,
-        createdAt: true,
-      },
-    })
+    // Create user with retry logic
+    const newUser = await withRetry(
+      () => prisma.user.create({
+        data: {
+          name,
+          email,
+          password, // In production, should be hashed with bcrypt
+          role,
+          active: active !== undefined ? active : true,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          active: true,
+          createdAt: true,
+        },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Revalidate settings page
     revalidatePath('/settings')
@@ -133,10 +137,25 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error) {
-    console.error('Error creating user:', error)
+  } catch (error: any) {
+    console.error('Error creating user:', error.message || String(error))
+
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Email sudah digunakan oleh user lain' },
+        { status: 409 }
+      )
+    }
+
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Gagal membuat user. Silakan coba lagi.' },
       { status: 500 }
     )
   }

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction } from '@/lib/auth/roles'
 import { UserRole } from '@/lib/auth/roles'
@@ -150,13 +151,16 @@ export async function POST(
       )
     }
 
-    // Update status
-    const updatedBerkas = await prisma.berkas.update({
-      where: { id: berkasId },
-      data: {
-        statusBerkas: nextStatus,
-      },
-    })
+    // Update status with retry logic
+    const updatedBerkas = await withRetry(
+      () => prisma.berkas.update({
+        where: { id: berkasId },
+        data: {
+          statusBerkas: nextStatus,
+        },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Log activity
     await prisma.riwayatBerkas.create({
@@ -185,9 +189,17 @@ export async function POST(
       },
     })
   } catch (error: any) {
-    console.error('Error moving berkas stage:', error)
+    console.error('Error moving berkas stage:', error.message || String(error))
+
+    if (error.code?.startsWith('P2')) {
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Gagal memindahkan berkas ke stage berikutnya. Silakan coba lagi.' },
       { status: 500 }
     )
   }

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
+import { withRetry } from '@/lib/db-retry'
 import { extractUserFromRequest } from '@/lib/auth/middleware'
 import { canPerformAction, canEditSection, BerkasSection } from '@/lib/auth/roles'
 
@@ -222,11 +223,14 @@ export async function PUT(
       dataToUpdate.statusBerkas = newStatus
     }
 
-    // Update berkas
-    const updatedBerkas = await prisma.berkas.update({
-      where: { id: berkasId },
-      data: dataToUpdate,
-    })
+    // Update berkas with retry logic
+    const updatedBerkas = await withRetry(
+      () => prisma.berkas.update({
+        where: { id: berkasId },
+        data: dataToUpdate,
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Log activity
     await prisma.riwayatBerkas.create({
@@ -251,9 +255,27 @@ export async function PUT(
       edited_sections: editedSections,
     })
   } catch (error: any) {
-    console.error('Error updating berkas:', error)
+    console.error('Error updating berkas:', error.message || String(error))
+
+    // Handle specific Prisma errors
+    if (error.code === 'P2002') {
+      // Unique constraint violation
+      return NextResponse.json(
+        { error: 'Nomor berkas sudah terdaftar. Gunakan nomor berkas yang berbeda.' },
+        { status: 409 }
+      )
+    }
+
+    if (error.code?.startsWith('P2')) {
+      // Other Prisma validation errors
+      return NextResponse.json(
+        { error: 'Data tidak valid. Periksa kembali input Anda.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Gagal memperbarui berkas. Silakan coba lagi.' },
       { status: 500 }
     )
   }
@@ -305,10 +327,13 @@ export async function DELETE(
       )
     }
 
-    // Delete berkas
-    await prisma.berkas.delete({
-      where: { id: berkasId },
-    })
+    // Delete berkas with retry logic
+    await withRetry(
+      () => prisma.berkas.delete({
+        where: { id: berkasId },
+      }),
+      { maxRetries: 2, delayMs: 100 }
+    )
 
     // Revalidate berkas list page
     revalidatePath('/berkas')
